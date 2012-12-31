@@ -1,0 +1,221 @@
+#######################################################################################
+# Makefile for the project Wireshark_Sniffer Release Using single source files
+############################################################################################
+# $Id: Makefile 33749 2012-12-06 07:17:50Z yogesh.bellan $
+
+# Build specific properties
+_TAL_TYPE = AT86RF231
+_PAL_TYPE = AT32UC3A3256
+_PAL_GENERIC_TYPE = AVR32
+_BOARD_TYPE = RZ600_231
+_HIGHEST_STACK_LAYER = TAL
+
+# Path variables
+PATH_ROOT = ../../../../../..
+PATH_APP = ../..
+PATH_TAL = $(PATH_ROOT)/TAL
+PATH_PAL = $(PATH_ROOT)/PAL
+PATH_RES = $(PATH_ROOT)/Resources
+PATH_GLOB_INC = $(PATH_ROOT)/Include
+PATH_SIO_SUPPORT = $(PATH_ROOT)/Applications/Helper_Files/SIO_Support
+
+## General Flags
+PROJECT = Wireshark_RZ600
+PART = uc3a3256s
+TARGET_DIR = .
+TARGET = $(PROJECT).elf
+CC = avr32-gcc
+
+
+## Options common to compile, link and assembly rules
+COMMON = -mpart=$(PART)
+
+## Compile options common for all C compilation units.
+CFLAGS = $(COMMON)
+CFLAGS += -Wall -Wundef -Werror -g0 -std=gnu99 -DSIO_HUB=1 -DUSB0 -DSNIFFER -Os -ffunction-sections
+CFLAGS += -DDEBUG=0
+CFLAGS += -DPROMISCUOUS_MODE
+CFLAGS += -DFFD
+CFLAGS += -DTAL_TYPE=$(_TAL_TYPE)
+CFLAGS += -DPAL_GENERIC_TYPE=$(_PAL_GENERIC_TYPE)
+CFLAGS += -DPAL_TYPE=$(_PAL_TYPE)
+CFLAGS += -DBOARD_TYPE=$(_BOARD_TYPE)
+CFLAGS += -DHIGHEST_STACK_LAYER=$(_HIGHEST_STACK_LAYER)
+CFLAGS += -MD -MP -MT $(*F).o -MF dep/$(@F).d
+CFLAGS += -DPAL_USE_SPI_TRX=1 -DIEEE_ADDRESS=0xBABE -DEXTERN_EEPROM_AVAILABLE=0
+
+## Assembly specific flags
+ASMFLAGS = $(COMMON)
+ASMFLAGS += -x assembler-with-cpp -c
+
+## Linker flags
+LDFLAGS = $(COMMON) -Wl,--gc-sections
+
+## Include directories for application
+INCLUDES = -I $(PATH_APP)/Inc
+## Include directories for SIO support
+INCLUDES += -I $(PATH_SIO_SUPPORT)/Inc
+## Include directories for general includes
+INCLUDES += -I $(PATH_GLOB_INC)
+## Include directories for resources
+INCLUDES += -I $(PATH_RES)/Buffer_Management/Inc/
+INCLUDES += -I $(PATH_RES)/Queue_Management/Inc/
+## Include directories for TAL
+INCLUDES += -I $(PATH_TAL)/Inc/
+INCLUDES += -I $(PATH_TAL)/$(_TAL_TYPE)/Inc/
+## Include directories for PAL
+INCLUDES += -I $(PATH_PAL)/Inc/
+INCLUDES += -I $(PATH_PAL)/$(_PAL_GENERIC_TYPE)/Generic/Inc
+INCLUDES += -I $(PATH_PAL)/$(_PAL_GENERIC_TYPE)/$(_PAL_TYPE)/Inc/
+INCLUDES += -I $(PATH_PAL)/$(_PAL_GENERIC_TYPE)/Libraries/USB/cdc-serial/Inc/
+## Include directories for specific boards type
+INCLUDES += -I $(PATH_PAL)/$(_PAL_GENERIC_TYPE)/$(_PAL_TYPE)/Boards/
+INCLUDES += -I $(PATH_PAL)/$(_PAL_GENERIC_TYPE)/$(_PAL_TYPE)/Boards/$(_BOARD_TYPE)
+## Include directories for Helper files
+INCLUDES += -I $(PATH_ROOT)/Applications/Helper_Files/SIO_Support/Inc/
+
+## Objects that must be built in order to link
+OBJECTS = $(TARGET_DIR)/main.o\
+	$(TARGET_DIR)/wireshark.o\
+    $(TARGET_DIR)/sio_handler.o\
+	$(TARGET_DIR)/write.o\
+	$(TARGET_DIR)/pal_sio_hub.o\
+	$(TARGET_DIR)/pal_irq.o\
+	$(TARGET_DIR)/pal.o\
+	$(TARGET_DIR)/pal_timer.o\
+	$(TARGET_DIR)/pal_board.o\
+	$(TARGET_DIR)/pal_utils.o\
+	$(TARGET_DIR)/pal_trx_access.o\
+	$(TARGET_DIR)/pal_uart.o\
+	$(TARGET_DIR)/tal.o\
+	$(TARGET_DIR)/tal_rx.o\
+	$(TARGET_DIR)/tal_tx.o\
+	$(TARGET_DIR)/tal_pib.o\
+	$(TARGET_DIR)/tal_init.o\
+	$(TARGET_DIR)/tal_irq_handler.o\
+	$(TARGET_DIR)/tal_pwr_mgmt.o\
+	$(TARGET_DIR)/tal_rx_enable.o\
+	$(TARGET_DIR)/tal_ed.o\
+	$(TARGET_DIR)/tal_slotted_csma.o\
+	$(TARGET_DIR)/bmm.o\
+	$(TARGET_DIR)/qmm.o\
+	$(TARGET_DIR)/pal_usb.o\
+	$(TARGET_DIR)/uart_usb_lib.o\
+	$(TARGET_DIR)/usb_descriptors.o\
+	$(TARGET_DIR)/usb_device_task.o\
+	$(TARGET_DIR)/usb_drv.o\
+	$(TARGET_DIR)/usb_specific_request.o\
+	$(TARGET_DIR)/usb_standard_request.o\
+	$(TARGET_DIR)/usb_task.o\
+	$(TARGET_DIR)/exception.o
+
+## Objects explicitly added by the user
+LINKONLYOBJECTS =
+
+## Build
+all: $(TARGET) $(TARGET_DIR)/$(PROJECT).hex $(TARGET_DIR)/$(PROJECT).eep $(TARGET_DIR)/$(PROJECT).lss size
+
+## Compile
+$(TARGET_DIR)/main.o: $(PATH_APP)/Src/main.c
+	$(CC) $(INCLUDES) $(CFLAGS) -c  -o $@ $<
+$(TARGET_DIR)/wireshark.o: $(PATH_APP)/Src/wireshark.c
+	$(CC) $(INCLUDES) $(CFLAGS) -c  -o $@ $<
+$(TARGET_DIR)/sio_handler.o: $(PATH_ROOT)/Applications/Helper_Files/SIO_Support/Src/sio_handler.c
+	$(CC) $(INCLUDES) $(CFLAGS) -c  -o $@ $<
+$(TARGET_DIR)/write.o: $(PATH_ROOT)/Applications/Helper_Files/SIO_Support/IAR_Support/write.c
+	$(CC) $(INCLUDES) $(CFLAGS) -c  -o $@ $<
+$(TARGET_DIR)/pal_sio_hub.o: $(PATH_PAL)/$(_PAL_GENERIC_TYPE)/$(_PAL_TYPE)/Src/pal_sio_hub.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/pal_irq.o: $(PATH_PAL)/$(_PAL_GENERIC_TYPE)/$(_PAL_TYPE)/Boards/$(_BOARD_TYPE)/pal_irq.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/pal.o: $(PATH_PAL)/$(_PAL_GENERIC_TYPE)/Generic/Src/pal.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/pal_timer.o: $(PATH_PAL)/$(_PAL_GENERIC_TYPE)/Generic/Src/pal_timer.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/pal_board.o: $(PATH_PAL)/$(_PAL_GENERIC_TYPE)/$(_PAL_TYPE)/Boards/$(_BOARD_TYPE)/pal_board.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/pal_utils.o: $(PATH_PAL)/$(_PAL_GENERIC_TYPE)/Generic/Src/pal_utils.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/pal_trx_access.o: $(PATH_PAL)/$(_PAL_GENERIC_TYPE)/Generic/Src/pal_trx_access.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/pal_uart.o: $(PATH_PAL)/$(_PAL_GENERIC_TYPE)/Generic/Src/pal_uart.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/tal.o: $(PATH_TAL)/$(_TAL_TYPE)/Src/tal.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/tal_rx.o: $(PATH_TAL)/$(_TAL_TYPE)/Src/tal_rx.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/tal_tx.o: $(PATH_TAL)/$(_TAL_TYPE)/Src/tal_tx.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/tal_pib.o: $(PATH_TAL)/$(_TAL_TYPE)/Src/tal_pib.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/tal_init.o: $(PATH_TAL)/$(_TAL_TYPE)/Src/tal_init.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/tal_irq_handler.o: $(PATH_TAL)/$(_TAL_TYPE)/Src/tal_irq_handler.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/tal_pwr_mgmt.o: $(PATH_TAL)/$(_TAL_TYPE)/Src/tal_pwr_mgmt.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/tal_rx_enable.o: $(PATH_TAL)/$(_TAL_TYPE)/Src/tal_rx_enable.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/tal_ed.o: $(PATH_TAL)/$(_TAL_TYPE)/Src/tal_ed.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/tal_slotted_csma.o: $(PATH_TAL)/$(_TAL_TYPE)/Src/tal_slotted_csma.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/bmm.o: $(PATH_RES)/Buffer_Management/Src/bmm.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/qmm.o: $(PATH_RES)/Queue_Management/Src/qmm.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/pal_usb.o: $(PATH_PAL)/$(_PAL_GENERIC_TYPE)/$(_PAL_TYPE)/Src/pal_usb.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/uart_usb_lib.o: $(PATH_PAL)/$(_PAL_GENERIC_TYPE)/Libraries/USB/cdc-serial/Src/uart_usb_lib.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/usb_descriptors.o: $(PATH_PAL)/$(_PAL_GENERIC_TYPE)/Libraries/USB/cdc-serial/Src/usb_descriptors.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/usb_device_task.o: $(PATH_PAL)/$(_PAL_GENERIC_TYPE)/Libraries/USB/cdc-serial/Src/usb_device_task.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/usb_drv.o: $(PATH_PAL)/$(_PAL_GENERIC_TYPE)/Libraries/USB/cdc-serial/Src/usb_drv.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/usb_specific_request.o: $(PATH_PAL)/$(_PAL_GENERIC_TYPE)/Libraries/USB/cdc-serial/Src/usb_specific_request.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/usb_standard_request.o: $(PATH_PAL)/$(_PAL_GENERIC_TYPE)/Libraries/USB/cdc-serial/Src/usb_standard_request.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+$(TARGET_DIR)/usb_task.o: $(PATH_PAL)/$(_PAL_GENERIC_TYPE)/Libraries/USB/cdc-serial/Src/usb_task.c
+	$(CC) -c $(CFLAGS) $(INCLUDES) -o $@ $<
+
+$(TARGET_DIR)/exception.o: $(PATH_PAL)/$(_PAL_GENERIC_TYPE)/Generic/Src/exception.S
+	$(CC) $(ASMFLAGS) $(INCLUDES) -o $@ $<
+
+##Link
+$(TARGET): $(OBJECTS)
+	$(CC) $(LDFLAGS) $(OBJECTS) $(LINKONLYOBJECTS) -o $(TARGET)
+
+%.hex: $(TARGET)
+	avr32-objcopy -O ihex $(HEX_FLASH_FLAGS)  $< $@
+
+%.eep: $(TARGET)
+	avr32-objcopy $(HEX_EEPROM_FLAGS) -O ihex $< $@ || exit 0
+
+%.lss: $(TARGET)
+	avr32-objdump -h -S $< > $@
+
+##Size
+size: ${TARGET}
+	@echo
+	@avr32-size -Bd $<
+
+## Clean target
+.PHONY: clean
+clean:
+	-rm -rf $(TARGET_DIR)/*.o $(TARGET_DIR)/$(PROJECT).elf dep/* $(TARGET_DIR)/$(PROJECT).hex $(TARGET_DIR)/$(PROJECT).eep $(TARGET_DIR)/$(PROJECT).lss $(TARGET_DIR)/$(PROJECT).map
+
+##Options for null device
+ifdef windir
+NULLDEV = NUL:
+else
+ifdef WINDIR
+NULLDEV = NUL:
+else
+NULLDEV = /dev/null
+endif
+endif
+## Other dependencies
+-include $(shell mkdir dep 2>$(NULLDEV)) $(wildcard dep/*)
