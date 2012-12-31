@@ -1,0 +1,252 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>6.0</ProjectVersion>
+    <ToolchainName>com.Atmel.AVRGCC32</ToolchainName>
+    <ProjectGuid>{84886b8b-72d7-4a78-9ca0-3f69c24db347}</ProjectGuid>
+    <avrdevice>AT32UC3A3256S</avrdevice>
+    <avrdeviceseries>none</avrdeviceseries>
+    <OutputType>Executable</OutputType>
+    <Language>C</Language>
+    <OutputFileName>$(MSBuildProjectName)</OutputFileName>
+    <OutputFileExtension>.elf</OutputFileExtension>
+    <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
+    <AssemblyName>Wireshark_RZ600</AssemblyName>
+    <Name>Wireshark_RZ600</Name>
+    <RootNamespace>Wireshark_RZ600</RootNamespace>
+    <ToolchainFlavour>Native</ToolchainFlavour>
+    <KeepTimersRunning>true</KeepTimersRunning>
+    <OverrideVtor>false</OverrideVtor>
+    <OverrideVtorValue />
+    <eraseonlaunchrule>0</eraseonlaunchrule>
+    <AsfVersion>WIRELESS</AsfVersion>
+    <avrtool>com.atmel.avrdbg.tool.jtagicemkii</avrtool>
+    <avrtoolinterface>JTAG</avrtoolinterface>
+    <com_atmel_avrdbg_tool_jtagicemkii>
+      <ToolType>com.atmel.avrdbg.tool.jtagicemkii</ToolType>
+      <ToolName>JTAGICE mkII</ToolName>
+      <ToolNumber>070000004CA0</ToolNumber>
+      <KeepTimersRunning>true</KeepTimersRunning>
+      <OverrideVtor>false</OverrideVtor>
+      <OverrideVtorValue>
+      </OverrideVtorValue>
+      <Channel>
+        <host>127.0.0.1</host>
+        <port>36780</port>
+        <ssl>False</ssl>
+      </Channel>
+      <ToolOptions>
+        <InterfaceName>JTAG</InterfaceName>
+        <InterfaceProperties>
+          <JtagDbgClock>0</JtagDbgClock>
+          <JtagProgClock>1000000</JtagProgClock>
+          <IspClock>150000</IspClock>
+          <JtagInChain>false</JtagInChain>
+          <JtagEnableExtResetOnStartSession>false</JtagEnableExtResetOnStartSession>
+          <JtagDevicesBefore>0</JtagDevicesBefore>
+          <JtagDevicesAfter>0</JtagDevicesAfter>
+          <JtagInstrBitsBefore>0</JtagInstrBitsBefore>
+          <JtagInstrBitsAfter>0</JtagInstrBitsAfter>
+        </InterfaceProperties>
+      </ToolOptions>
+    </com_atmel_avrdbg_tool_jtagicemkii>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <ToolchainSettings>
+      <Avr32Gcc>
+        <avr32gcc.common.outputfiles.hex>True</avr32gcc.common.outputfiles.hex>
+        <avr32gcc.common.outputfiles.lss>True</avr32gcc.common.outputfiles.lss>
+        <avr32gcc.common.outputfiles.eep>True</avr32gcc.common.outputfiles.eep>
+        <avr32gcc.common.outputfiles.srec>True</avr32gcc.common.outputfiles.srec>
+        <avr32gcc.compiler.optimization.level>Optimize for size (-Os)</avr32gcc.compiler.optimization.level>
+        <avr32gcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</avr32gcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
+        <avr32gcc.compiler.optimization.UseAssemblerForPseudoInstructions>True</avr32gcc.compiler.optimization.UseAssemblerForPseudoInstructions>
+        <avr32gcc.compiler.warnings.AllWarnings>True</avr32gcc.compiler.warnings.AllWarnings>
+        <avr32gcc.linker.libraries.Libraries>
+          <ListValues>
+            <Value>m</Value>
+          </ListValues>
+        </avr32gcc.linker.libraries.Libraries>
+        <avr32gcc.linker.optimization.GarbageCollectUnusedSections>True</avr32gcc.linker.optimization.GarbageCollectUnusedSections>
+        <avr32gcc.linker.optimization.PutReadOnlyDataInWritableDataSection>True</avr32gcc.linker.optimization.PutReadOnlyDataInWritableDataSection>
+        <avr32gcc.linker.optimization.AllowDirectReferencesToDataSection>True</avr32gcc.linker.optimization.AllowDirectReferencesToDataSection>
+      </Avr32Gcc>
+    </ToolchainSettings>
+    <UsesExternalMakeFile>True</UsesExternalMakeFile>
+    <OutputDirectory />
+    <ExternalMakeFilePath>Makefile</ExternalMakeFilePath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <ToolchainSettings>
+      <Avr32Gcc>
+        <avr32gcc.common.outputfiles.hex>True</avr32gcc.common.outputfiles.hex>
+        <avr32gcc.common.outputfiles.lss>True</avr32gcc.common.outputfiles.lss>
+        <avr32gcc.common.outputfiles.eep>True</avr32gcc.common.outputfiles.eep>
+        <avr32gcc.common.outputfiles.srec>True</avr32gcc.common.outputfiles.srec>
+        <avr32gcc.compiler.optimization.level>Optimize (-O1)</avr32gcc.compiler.optimization.level>
+        <avr32gcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</avr32gcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
+        <avr32gcc.compiler.optimization.UseAssemblerForPseudoInstructions>True</avr32gcc.compiler.optimization.UseAssemblerForPseudoInstructions>
+        <avr32gcc.compiler.optimization.DebugLevel>Maximum (-g3)</avr32gcc.compiler.optimization.DebugLevel>
+        <avr32gcc.compiler.warnings.AllWarnings>True</avr32gcc.compiler.warnings.AllWarnings>
+        <avr32gcc.linker.libraries.Libraries>
+          <ListValues>
+            <Value>m</Value>
+          </ListValues>
+        </avr32gcc.linker.libraries.Libraries>
+        <avr32gcc.linker.optimization.GarbageCollectUnusedSections>True</avr32gcc.linker.optimization.GarbageCollectUnusedSections>
+        <avr32gcc.linker.optimization.PutReadOnlyDataInWritableDataSection>True</avr32gcc.linker.optimization.PutReadOnlyDataInWritableDataSection>
+        <avr32gcc.linker.optimization.AllowDirectReferencesToDataSection>True</avr32gcc.linker.optimization.AllowDirectReferencesToDataSection>
+        <avr32gcc.assembler.debugging.DebugLevel>Default (-g)</avr32gcc.assembler.debugging.DebugLevel>
+        <avr32gcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</avr32gcc.preprocessingassembler.debugging.DebugLevel>
+      </Avr32Gcc>
+    </ToolchainSettings>
+    <UsesExternalMakeFile>True</UsesExternalMakeFile>
+    <ExternalMakeFilePath>Makefile_Debug</ExternalMakeFilePath>
+    <OutputDirectory>
+    </OutputDirectory>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\..\..\..\PAL\AVR32\AT32UC3A3256\Boards\RZ600_231\pal_board.c">
+      <SubType>compile</SubType>
+      <Link>pal_board.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\PAL\AVR32\AT32UC3A3256\Boards\RZ600_231\pal_config.h">
+      <SubType>compile</SubType>
+      <Link>pal_config.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\PAL\AVR32\AT32UC3A3256\Boards\RZ600_231\pal_irq.c">
+      <SubType>compile</SubType>
+      <Link>pal_irq.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\PAL\AVR32\AT32UC3A3256\Src\pal_sio_hub.c">
+      <SubType>compile</SubType>
+      <Link>pal_sio_hub.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\PAL\AVR32\AT32UC3A3256\Src\pal_usb.c">
+      <SubType>compile</SubType>
+      <Link>pal_usb.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\PAL\AVR32\Generic\Src\exception.S">
+      <SubType>compile</SubType>
+      <Link>exception.S</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\PAL\AVR32\Generic\Src\pal.c">
+      <SubType>compile</SubType>
+      <Link>pal.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\PAL\AVR32\Generic\Src\pal_flash.c">
+      <SubType>compile</SubType>
+      <Link>pal_flash.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\PAL\AVR32\Generic\Src\pal_nvm_multi_write.c">
+      <SubType>compile</SubType>
+      <Link>pal_nvm_multi_write.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\PAL\AVR32\Generic\Src\pal_timer.c">
+      <SubType>compile</SubType>
+      <Link>pal_timer.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\PAL\AVR32\Generic\Src\pal_trx_access.c">
+      <SubType>compile</SubType>
+      <Link>pal_trx_access.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\PAL\AVR32\Generic\Src\pal_uart.c">
+      <SubType>compile</SubType>
+      <Link>pal_uart.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\PAL\AVR32\Generic\Src\pal_utils.c">
+      <SubType>compile</SubType>
+      <Link>pal_utils.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\PAL\AVR32\Libraries\USB\cdc-serial\Src\device_cdc_task.c">
+      <SubType>compile</SubType>
+      <Link>device_cdc_task.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\PAL\AVR32\Libraries\USB\cdc-serial\Src\uart_usb_lib.c">
+      <SubType>compile</SubType>
+      <Link>uart_usb_lib.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\PAL\AVR32\Libraries\USB\cdc-serial\Src\usb_descriptors.c">
+      <SubType>compile</SubType>
+      <Link>usb_descriptors.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\PAL\AVR32\Libraries\USB\cdc-serial\Src\usb_device_task.c">
+      <SubType>compile</SubType>
+      <Link>usb_device_task.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\PAL\AVR32\Libraries\USB\cdc-serial\Src\usb_drv.c">
+      <SubType>compile</SubType>
+      <Link>usb_drv.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\PAL\AVR32\Libraries\USB\cdc-serial\Src\usb_specific_request.c">
+      <SubType>compile</SubType>
+      <Link>usb_specific_request.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\PAL\AVR32\Libraries\USB\cdc-serial\Src\usb_standard_request.c">
+      <SubType>compile</SubType>
+      <Link>usb_standard_request.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\PAL\AVR32\Libraries\USB\cdc-serial\Src\usb_task.c">
+      <SubType>compile</SubType>
+      <Link>usb_task.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\Resources\Buffer_Management\Src\bmm.c">
+      <SubType>compile</SubType>
+      <Link>bmm.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\Resources\Queue_Management\Src\qmm.c">
+      <SubType>compile</SubType>
+      <Link>qmm.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\TAL\AT86RF231\Src\tal.c">
+      <SubType>compile</SubType>
+      <Link>tal.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\TAL\AT86RF231\Src\tal_ed.c">
+      <SubType>compile</SubType>
+      <Link>tal_ed.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\TAL\AT86RF231\Src\tal_init.c">
+      <SubType>compile</SubType>
+      <Link>tal_init.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\TAL\AT86RF231\Src\tal_irq_handler.c">
+      <SubType>compile</SubType>
+      <Link>tal_irq_handler.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\TAL\AT86RF231\Src\tal_pib.c">
+      <SubType>compile</SubType>
+      <Link>tal_pib.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\TAL\AT86RF231\Src\tal_pwr_mgmt.c">
+      <SubType>compile</SubType>
+      <Link>tal_pwr_mgmt.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\TAL\AT86RF231\Src\tal_rx.c">
+      <SubType>compile</SubType>
+      <Link>tal_rx.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\TAL\AT86RF231\Src\tal_rx_enable.c">
+      <SubType>compile</SubType>
+      <Link>tal_rx_enable.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\TAL\AT86RF231\Src\tal_slotted_csma.c">
+      <SubType>compile</SubType>
+      <Link>tal_slotted_csma.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\TAL\AT86RF231\Src\tal_tx.c">
+      <SubType>compile</SubType>
+      <Link>tal_tx.c</Link>
+    </Compile>
+    <Compile Include="..\..\Src\main.c">
+      <SubType>compile</SubType>
+      <Link>main.c</Link>
+    </Compile>
+    <Compile Include="..\..\Src\wireshark.c">
+      <SubType>compile</SubType>
+      <Link>wireshark.c</Link>
+    </Compile>
+  </ItemGroup>
+  <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
+</Project>
