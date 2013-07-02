@@ -19,12 +19,9 @@ using System.Collections;
 using System.Threading;
 using Microsoft.Win32;
 
-
 namespace Wireshark_Sniffer_Interface
 {
-    /// <summary>
     /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         //members
@@ -46,7 +43,9 @@ namespace Wireshark_Sniffer_Interface
         Process p;
         public Process CmdProcess;
         FileInfo Wireshark_Sniff_Packet;
-
+        static byte ISM_BAND_2_4__GHZ = 2;
+        static byte ISM_BAND_900_MHZ = 3;
+        static byte ISM_BAND_CHINESE = 9;
         bool thread_alive;
         static Thread Writing_Pipe_Thread = new Thread(new ThreadStart(Pipe_Thread));
 
@@ -63,42 +62,32 @@ namespace Wireshark_Sniffer_Interface
 
         public MainWindow()
         {
-
-
             InitializeComponent();
             this.Closed += new EventHandler(MainWindow_Closed);
-
             do
             {
                 var tt = new SerialPort();
                 var t = SerialPort.GetPortNames();
                 ComPort.ItemsSource = SerialPort.GetPortNames();
-
-
                 InitilaiseUI();
             } while (Open.IsEnabled == true);
-            channelNumber.ItemsSource = GetChannelValues();
-            channelNumber.SelectedIndex = 0;
-
             startButton.IsEnabled = false;
             stopButton.IsEnabled = false;
             channelNumber.IsEnabled = false;
             setChannel.IsEnabled = false;
             PauseButton.IsEnabled = false;
             ResumeButton.IsEnabled = false;
-
             Writing_Pipe_Thread.Start();
             thread_alive = Writing_Pipe_Thread.IsAlive;
             this.CmdProcess = p;
-          }
+         }
 
         void MainWindow_Closed(object sender, EventArgs e)
         {
                     Writing_Pipe_Thread.Abort();
-                    p.Kill();
+                    p.Kill(); // wireshark will run even if host appn is close.. decide it.!!
                     p.Close();            
                     close();
-
         }
 
         protected static void Pipe_Thread()
@@ -109,10 +98,8 @@ namespace Wireshark_Sniffer_Interface
             {
             if(Pause_Button_Pressed != true)
             {
-
                 while ((q.Count > 0))
                 {
-
                     if (state == FSM.CONTROL_ENDPT)
                     {
                         var value1 = q.Dequeue();
@@ -135,7 +122,6 @@ namespace Wireshark_Sniffer_Interface
                     {
                         if (wspipe != null)
                         {
-
                             var value = q.Dequeue();
                             if (value != null)
                             {
@@ -163,8 +149,9 @@ namespace Wireshark_Sniffer_Interface
             }
         }
 
-        /*private function to read com ports and give to UI*/
-        private IEnumerable<string> GetChannelValues()
+
+        //private IEnumerable<string> GetChannelValues_2_4()
+        public IEnumerable<string> GetChannelValues_2_4()
         {
             var channelvlues = new List<string>();
             for (int i = 11; i <= 26; i++)
@@ -173,6 +160,29 @@ namespace Wireshark_Sniffer_Interface
             }
             return channelvlues;
         }
+
+        //  private IEnumerable<string> GetChannelValues_900()
+        public IEnumerable<string> GetChannelValues_900()
+        {
+            var channelvlues = new List<string>();
+            for (int i = 0; i <= 10; i++)
+            {
+                channelvlues.Add(i.ToString());
+            }
+            return channelvlues;
+        }
+
+        //  private IEnumerable<string> GetChannelValues_900()
+        public IEnumerable<string> GetChannelValues_Chinese()
+        {
+            var channelvlues = new List<string>();
+            for (int i = 0; i <= 3; i++)
+            {
+                channelvlues.Add(i.ToString());
+            }
+            return channelvlues;
+        }
+
 
         private void button1_Click(object sender, RoutedEventArgs e)
         {
@@ -195,15 +205,42 @@ namespace Wireshark_Sniffer_Interface
 
         }
 
+
         private void OpenComPort(object sender, RoutedEventArgs e)
         {
             var comport = ComPort.SelectedItem.ToString();
-
             // Open serial port
             try
             {
                 Com = new SerialPort(comport, 115200, Parity.None, 8, StopBits.One);
-                Com.Open();
+                Com.Open();     
+                /* Start of Communication*/
+                byte ack_value = 0;
+                byte[] BytesToSend = { 1 };
+                {
+                    Com.Write(BytesToSend, 0, 1);
+                }
+                ack_value = (byte)Com.ReadByte();
+                /* To Send ISM band Confirmation */
+                byte[] BytesToSend_ack = { 4 };
+                Com.Write(BytesToSend_ack, 0, 1);
+                if (ack_value == ISM_BAND_2_4__GHZ)
+                {
+                    //ISM_BAND = 2; /*2.4 Ghz*/
+                    channelNumber.ItemsSource = GetChannelValues_2_4();
+                    channelNumber.SelectedIndex = 0;                    
+                }
+                else if (ack_value == ISM_BAND_900_MHZ)
+                {
+                    //ISM_BAND = 3; /*900 Mhz*/
+                    channelNumber.ItemsSource = GetChannelValues_900();
+                    channelNumber.SelectedIndex = 0;
+                }
+                else if (ack_value == ISM_BAND_CHINESE)
+                {
+                    channelNumber.ItemsSource = GetChannelValues_Chinese();
+                   channelNumber.SelectedIndex = 0;
+                }
                 Open.IsEnabled = false;
                 ComPort.IsEnabled = false;
                 setChannel.IsEnabled = true;
@@ -213,7 +250,9 @@ namespace Wireshark_Sniffer_Interface
             }
             catch (Exception serial)
             {
+                // ooops, serial port can't be opened. throw exception, print message, and exit
                 MessageBox.Show("Error opening serial port. Msg = " + serial.Message);
+                //Environment.Exit(0);
             }
 
 
@@ -245,7 +284,6 @@ namespace Wireshark_Sniffer_Interface
             stopButton.IsEnabled = false;
             ComPort.IsEnabled = false;
             ConectionStatus.Content = "Click Start to capture in Wireshark";
-
         }
 
         private void File_Save()
@@ -258,7 +296,6 @@ namespace Wireshark_Sniffer_Interface
             Wireshark_Sniff_Packet = new FileInfo(Wireshark_Local_FileName);
             long size = Wireshark_Sniff_Packet.Length;
             string  extension = Wireshark_Sniff_Packet.Extension;
-
             SaveFileDialog saveFileDialog1 = new SaveFileDialog();
             saveFileDialog1.RestoreDirectory = true;
             saveFileDialog1.Title = "Do you want save Wireshark capture Packet";
@@ -266,8 +303,8 @@ namespace Wireshark_Sniffer_Interface
             saveFileDialog1.InitialDirectory = Convert.ToString(Environment.SpecialFolder.MyDocuments);
             saveFileDialog1.FileName = "Wireshark";
             saveFileDialog1.Filter = "Wireshark-libpcap (*.cap)|*.*";
-            saveFileDialog1.FilterIndex = 1;  
-            if (size >1024)
+            saveFileDialog1.FilterIndex = 1;    
+            if (size > 250)
             {
                 Nullable<bool> result = saveFileDialog1.ShowDialog();
                 if(result == true)
@@ -319,6 +356,7 @@ namespace Wireshark_Sniffer_Interface
                         ws = new BinaryWriter(wspipe);
                         Com.DataReceived += new SerialDataReceivedEventHandler(serialPort_DataReceived);
                         set_state_Config_header();
+                        //Writing_Pipe_Thread.Resume();
                     }
                     catch (Exception Process)
                     {
@@ -340,6 +378,7 @@ namespace Wireshark_Sniffer_Interface
                 }
                 catch (Exception Process)
                 {
+                    //MessageBox.Show("Error Creating New Instance of Process. Msg = " + Process.Message);
                     MessageBox.Show("Wireshark Not Installed..Set Environment Path of Wireshark");
                     Com.Close();
                 }
@@ -390,7 +429,6 @@ namespace Wireshark_Sniffer_Interface
                         ws.Close();
                         wspipe.Close();
                         File_Save();
-                        //Thread.Sleep(50);
                         p.Kill();
                         while (!p.HasExited) ;
                         Thread.Sleep(500);
@@ -402,10 +440,10 @@ namespace Wireshark_Sniffer_Interface
                     close();
                 }
                 restart();
-            }  
+            }
 
             //send the start command
-            byte[] BytesToSend = { 1 };
+            byte[] BytesToSend = { 5 };
             Com.Write(BytesToSend, 0, 1);
             //enable the start button
             startButton.IsEnabled = false;
@@ -422,7 +460,7 @@ namespace Wireshark_Sniffer_Interface
         {
             state = FSM.CONTROL_ENDPT;
             ConectionStatus.Content = "Select Channel & Set";
-            byte[] BytesToSend = { 2 };
+            byte[] BytesToSend = { 6 };
             Com.Write(BytesToSend, 0, 1);
             //while (state == FSM.CONTROL_ENDPT) ;
             while (state == FSM.START_CAPTURE)
@@ -585,8 +623,6 @@ namespace Wireshark_Sniffer_Interface
         // requires a timestamp and length
         static void write_frm_hdr(long sec, long usec, uint incl_len, uint orig_len)
         {
-            //incl_len = 10;
-            //orig_len = 12;
             try
             {
                 if (ws != null)
@@ -616,78 +652,70 @@ namespace Wireshark_Sniffer_Interface
         {
 
              if ((frame_len >=5) && (frame_len < 127))
-
              {
-            uint incl_len, orig_len;
-            long sec, usec;
+                uint incl_len, orig_len;
+                long sec, usec;
 
-            String write_frame_byte_ctrl;
+                String write_frame_byte_ctrl;
 
-            // generating timestamp. its kind of cheesy but there isn't a unix timestamp mechanism in win. 
-            // just counting ticks from when program was started. each tick is 100 nsec. 
-            long diff_in_ticks = DateTime.Now.Ticks - start_time_in_ticks;  // get difference in ticks
-            sec = diff_in_ticks / TimeSpan.TicksPerSecond;                  // get seconds
-            diff_in_ticks -= (sec * TimeSpan.TicksPerSecond);               // subtract off seconds from total
-            usec = diff_in_ticks / 10;                                      // get usec
+                // generating timestamp. its kind of cheesy but there isn't a unix timestamp mechanism in win. 
+                // just counting ticks from when program was started. each tick is 100 nsec. 
+                long diff_in_ticks = DateTime.Now.Ticks - start_time_in_ticks;  // get difference in ticks
+                sec = diff_in_ticks / TimeSpan.TicksPerSecond;                  // get seconds
+                diff_in_ticks -= (sec * TimeSpan.TicksPerSecond);               // subtract off seconds from total
+                usec = diff_in_ticks / 10;                                      // get usec
 
-            // calculate frame length. we won't be feeding frame checksum (FCS) into wireshark.
-            incl_len = 0;
-            orig_len = 0;
-            incl_len = (uint)frame_len - PACKET_FCS;
-            orig_len = frame_len;
+                // calculate frame length. we won't be feeding frame checksum (FCS) into wireshark.
+                incl_len = 0;
+                orig_len = 0;
+                incl_len = (uint)frame_len - PACKET_FCS;
+                orig_len = frame_len;
 
-            // write frame header first
-            write_frm_hdr(sec, usec, incl_len, orig_len);
-            int i = 0;
-            while (i < (incl_len))
-            {
-
-                try
+                // write frame header first
+                write_frm_hdr(sec, usec, incl_len, orig_len);
+                int i = 0;
+                while (i < (incl_len))
                 {
-                    if ((!(q.Count.Equals(0))) && (wspipe != null))
+
+                    try
                     {
-                        var write_frame_temp = q.Dequeue();
-                        if (write_frame_temp != null)
+                        if ((!(q.Count.Equals(0))) && (wspipe != null))
                         {
-                            write_frame_byte_ctrl = write_frame_temp.ToString();
-                            byte data_sent = Byte.Parse(write_frame_byte_ctrl);
-                            if (ws != null)
+                            var write_frame_temp = q.Dequeue();
+                            if (write_frame_temp != null)
                             {
-                                ws.Write(data_sent);
-                                i++;
+                                write_frame_byte_ctrl = write_frame_temp.ToString();
+                                byte data_sent = Byte.Parse(write_frame_byte_ctrl);
+                                if (ws != null)
+                                {
+                                    ws.Write(data_sent);
+                                    i++;
+                                }
+                                else
+                                {
+                                    close();
+                                }
                             }
-                            else
-                            {
-                                close();
-                           }
                         }
-
                     }
-
-                }
-                catch (Exception e)
-                {
-                    if (DEBUG_PRINT)
+                    catch (Exception e)
                     {
-                        //Console.WriteLine(e);
-                        //Console.WriteLine(" Inside write_frame -> write_frame Pipe has been closed.");
+                        if (DEBUG_PRINT)
+                        {
+                            //Console.WriteLine(e);
+                            //Console.WriteLine(" Inside write_frame -> write_frame Pipe has been closed.");
+                        }
+                        close();
                     }
-                    close();
                 }
-
-            }
              }
-
         }
-
 
         public static void close()
         {
             Com.Close();
-            //Writing_Pipe_Thread.Suspend();
             ws.Close();
             wspipe.Close();
-           // p.Close();
             Environment.Exit(0);
         }
 
